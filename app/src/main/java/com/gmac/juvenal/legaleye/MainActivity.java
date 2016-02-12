@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,8 +17,19 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,40 +96,40 @@ public class MainActivity extends AppCompatActivity {
         final String zip = editZipText.getText().toString();
         final String state = spinner.getSelectedItem().toString();
 
-        if (!isValidEmail(email)) {
-            editEmailText.setError("Invalid Email");
-            return;
-        }
-
-        if (name == null || name.isEmpty()) {
-            editNameText.setError("Invalid name");
-            return;
-        }
-
-        if (address == null || address.isEmpty()) {
-            editAddressText.setError("Invalid address");
-            return;
-        }
-
-        if (phone == null || phone.isEmpty()) {
-            editPhoneText.setError("Invalid phone");
-            return;
-        }
-
-        if (city == null || city.isEmpty()) {
-            editCityText.setError("Invalid city");
-            return;
-        }
-
-        if (zip == null || zip.isEmpty()) {
-            editZipText.setError("Invalid zip");
-        }
-
-        if (spinner.getSelectedItemPosition() == 0) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Enter your state", Toast.LENGTH_SHORT);
-            toast.show();
-            return;
-        }
+//        if (!isValidEmail(email)) {
+//            editEmailText.setError("Invalid Email");
+//            return;
+//        }
+//
+//        if (name == null || name.isEmpty()) {
+//            editNameText.setError("Invalid name");
+//            return;
+//        }
+//
+//        if (address == null || address.isEmpty()) {
+//            editAddressText.setError("Invalid address");
+//            return;
+//        }
+//
+//        if (phone == null || phone.isEmpty()) {
+//            editPhoneText.setError("Invalid phone");
+//            return;
+//        }
+//
+//        if (city == null || city.isEmpty()) {
+//            editCityText.setError("Invalid city");
+//            return;
+//        }
+//
+//        if (zip == null || zip.isEmpty()) {
+//            editZipText.setError("Invalid zip");
+//        }
+//
+//        if (spinner.getSelectedItemPosition() == 0) {
+//            Toast toast = Toast.makeText(getApplicationContext(), "Enter your state", Toast.LENGTH_SHORT);
+//            toast.show();
+//            return;
+//        }
 
         FileOutputStream outputStream = null;
         try {
@@ -133,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         Intent myIntent = new Intent(MainActivity.this, CamActivity.class);
         MainActivity.this.startActivity(myIntent);

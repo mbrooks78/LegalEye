@@ -57,5 +57,6 @@
         <item>Wyoming</item>
     </string-array>
     <string name="title_activity_cam">CamActivity</string>
+    <string name="title_activity_video_upload">VideoUpload</string>
 
 </resources>

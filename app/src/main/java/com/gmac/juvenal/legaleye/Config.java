@@ -5,7 +5,9 @@ package com.gmac.juvenal.legaleye;
  */
 public class Config {
 
-    public static final String FILE_UPLOAD_URL = "http://192.168.1.3/AndroidFileUpload/fileUpload.php";
+    public static final String FILE_UPLOAD_URL = "http://zonestop.ftp.sh/u.php"; //"http://192.168.1.3/AndroidFileUpload/fileUpload.php";
+    public static final String SERVER_DOWNLOAD_URL = "http://zonestop.ftp.sh/start";
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
+
 
 }

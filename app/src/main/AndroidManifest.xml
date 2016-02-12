@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gmac.juvenal.legaleye">
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -26,6 +27,10 @@
         <activity
             android:name=".CamActivity"
             android:label="@string/title_activity_cam"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".VideoUpload"
+            android:label="@string/title_activity_video_upload"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
