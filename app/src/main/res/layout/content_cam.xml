@@ -10,73 +10,60 @@
     tools:showIn="@layout/activity_cam">
 
     <VideoView
+        android:id="@+id/vv1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/vv1"
         android:layout_centerInParent="true" />
 
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/linearLayout">
+    <!--<LinearLayout-->
+        <!--android:id="@+id/linearLayout"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:orientation="horizontal">-->
+    <!--</LinearLayout>-->
+
 
         <Button
+            android:id="@+id/btnFlash"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SAVE"
-            android:id="@+id/btnSave"
-            android:visibility="visible"
-            android:onClick="btnSaveClick"
-            android:layout_alignParentBottom="true"
+            android:background="@drawable/flashlight_35x35"
+            android:onClick="btnFlashClick"
+            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:textSize="28sp" />
+            android:layout_alignParentStart="true" />
 
         <Button
+            android:id="@+id/btnPause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="DELETE"
-            android:id="@+id/btnDelete"
-            android:onClick="btnDeleteClick"
-            android:visibility="visible"
+            android:background="@drawable/pause_60x60"
+            android:onClick="btnPauseClick"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:textSize="28sp" />
-    </LinearLayout>
+            android:layout_toRightOf="@+id/btnFlash"
+            android:layout_toEndOf="@+id/btnFlash" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnRotate"
-        android:onClick="btnRotateClick"
-        android:background="@drawable/rotatebutton"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="5dp"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnSTOP"
-        android:background="@drawable/pausebutton"
-        android:onClick="btnStopClick"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        <!--<View-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_width="1dp"-->
+            <!--android:layout_height="0dp" />-->
+        <Button
+            android:id="@+id/btnSTOP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/stop_60x60"
+            android:onClick="btnStopClick"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@+id/btnPause"
+            android:layout_toEndOf="@+id/btnPause"
+            android:layout_marginLeft="38dp"
+            android:layout_marginStart="38dp" />
 
-    <ZoomControls
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/zoomControls"
-        android:orientation="horizontal"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+
 
 
 </RelativeLayout>
