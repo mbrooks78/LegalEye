@@ -1,15 +1,10 @@
 package com.gmac.juvenal.legaleye;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -20,18 +15,9 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
-import android.widget.MediaController;
 import android.widget.VideoView;
-import android.widget.ZoomControls;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class CamActivity extends AppCompatActivity implements SurfaceHolder.Callback,
         MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener {
@@ -39,9 +25,8 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
     /**Global variable declarations. **/
 
     private Button btnStop = null;
-    private Button btnDelete = null;
-    private Button btnSave = null;
-    private Button btnRotate = null;
+    private Button btnPause = null;
+    private Button btnFlash = null;
     private VideoView vvCam = null;
     private SurfaceHolder holder = null;
     private Camera camera = null;
@@ -53,11 +38,8 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
     private File outFile;
     private String TAG = "VideoRecorder";
     private int orientation;
-    private boolean rotated;
+    private boolean pauseClicked;
     private boolean stopClicked;
-    private int currentZoomLevel;
-    private int maxZoomLevel;
-    private ZoomControls zoomControls;
     private Camera.Parameters params;
 
 
@@ -66,29 +48,36 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cam);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
+        btnFlash = (Button) findViewById(R.id.btnFlash);
         btnStop = (Button) findViewById(R.id.btnSTOP);
-        btnDelete = (Button) findViewById(R.id.btnDelete);
-        btnSave = (Button) findViewById(R.id.btnSave);
-        btnRotate = (Button) findViewById(R.id.btnRotate);
+        btnPause = (Button) findViewById(R.id.btnPause);
+        btnPause.setBackgroundResource(R.drawable.pause_60x60);
         vvCam = (VideoView) findViewById(R.id.vv1);
-        zoomControls = (ZoomControls) findViewById(R.id.zoomControls);
-
         videoNumber = 1;
-        currentZoomLevel = 0;
-        maxZoomLevel = 0;
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        btnPause.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onClick(View v) {
+                if(pauseClicked) {
+                    v.setBackgroundResource(R.drawable.pause_60x60);
+                } else {
+                    v.setBackgroundResource(R.drawable.play_60x60);
+                }
+                pauseClicked = !pauseClicked;
             }
         });
+
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
     }
 
     /**This method prepares the MediaRecroder for use. **/
@@ -159,6 +148,13 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
         }
 
     }
+
+    public void btnFlashClick (View view) {
+        //check if phone has led
+        //if so toggle light on and off-
+    }
+
+
     /**Button that stops the recording then plays it back. **/
     public void btnStopClick(View view) {
 
@@ -168,77 +164,8 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
         stopClicked = true;
         btnStop.setEnabled(false);
         btnStop.setVisibility(View.INVISIBLE);
-        btnRotate.setEnabled(false);
         btnStop.setVisibility(View.INVISIBLE);
-        zoomControls.setEnabled(false);
-        zoomControls.setVisibility(View.INVISIBLE);
-        playback();
 
-    }
-    /**Deletes the video. **/
-    public void btnDeleteClick(View view) {
-
-        Log.v(TAG, "In btnDeleteClick");
-        vvCam.stopPlayback();
-
-        outFile.delete();
-
-        AlertDialog.Builder msgDelete = new AlertDialog.Builder(this);
-        msgDelete.setMessage("The video was deleted successfully");
-        msgDelete.setTitle("Video Deleted");
-        msgDelete.setCancelable(false);
-        msgDelete.setPositiveButton("EXIT", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                //Dismiss the dialog
-                exitApp();
-            }
-        });
-
-        msgDelete.show();
-
-    }
-
-    /**Keeps the video and allows the user to share it. **/
-    public void btnSaveClick(View view) {
-
-        Log.v(TAG, "In btnSaveClick");
-        vvCam.stopPlayback();
-
-        AlertDialog.Builder msgSave = new AlertDialog.Builder(this);
-        msgSave.setMessage("The Video Was Saved Successfully!");
-        msgSave.setTitle("Video Saved");
-        msgSave.setCancelable(false);
-        msgSave.setNegativeButton("EXIT", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                exitApp();
-            }
-        });
-        msgSave.setPositiveButton("SHARE", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                shareVideo();
-
-            }
-        });
-
-        msgSave.show();
-    }
-
-    /** Switches orientation when the user clicks . **/
-    public void btnRotateClick(View view) {
-
-
-        outFile.delete();
-
-        switch(orientation) {
-            case Configuration.ORIENTATION_PORTRAIT:
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                break;
-            case Configuration.ORIENTATION_LANDSCAPE:
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                break;
-        }
-
-        rotated = true;
     }
 
     /**Method that stops the recording. **/
@@ -260,7 +187,11 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
 
         }
 
-
+        String myFileName = fileName;
+        //finish();
+        Intent myIntent = new Intent(CamActivity.this, VideoUpload.class);
+        myIntent.putExtra("fileName", myFileName);
+        CamActivity.this.startActivity(myIntent);
 
     }
     /**Method  that auto starts the recording. **/
@@ -272,23 +203,6 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
 
 
     }
-    /** Plays back the video. **/
-    public void playback() {
-
-        MediaController mc = new MediaController(this);
-
-
-        vvCam.setMediaController(mc);
-        vvCam.setVideoPath(outFile.getAbsolutePath());
-        vvCam.start();
-        btnDelete.setVisibility(View.VISIBLE);
-        btnDelete.setEnabled(true);
-        btnSave.setVisibility(View.VISIBLE);
-        btnSave.setEnabled(true);
-
-    }
-
-
 
     /** sets the camera output to the SurfaceHolder. also sets display orientation correctly **/
     @Override
@@ -315,36 +229,6 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
     /**Allows the user to zoom in and out during record. **/
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-
-        if(params.isZoomSupported()){
-            maxZoomLevel = params.getMaxZoom();
-
-            zoomControls.setIsZoomInEnabled(true);
-            zoomControls.setIsZoomOutEnabled(true);
-
-            zoomControls.setOnZoomInClickListener(new View.OnClickListener(){
-                public void onClick(View v){
-                    if(currentZoomLevel <  maxZoomLevel){
-                        currentZoomLevel = currentZoomLevel + 3;
-                        params.setZoom(currentZoomLevel);
-                        camera.setParameters(params);
-                    }
-                }
-            });
-
-            zoomControls.setOnZoomOutClickListener(new View.OnClickListener(){
-                public void onClick(View v){
-                    if(currentZoomLevel > 0){
-                        currentZoomLevel = currentZoomLevel - 3;
-                        params.setZoom(currentZoomLevel);
-                        camera.setParameters(params);
-                    }
-                }
-            }); }
-        else
-            zoomControls.setVisibility(View.GONE);
-
 
     }
 
@@ -375,9 +259,6 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
             stopRecord();
         }
 
-        if(!rotated) {
-            exitApp();
-        }
     }
 
     /**Set ups buttons and gets the current orientation. **/
@@ -387,15 +268,11 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
 
         Log.v(TAG, "In OnResume");
         super.onResume();
-        rotated = false;
+        //rotated = false;
         stopClicked = false;
 
         orientation = getResources().getConfiguration().orientation;
         btnStop.setEnabled(false);
-        btnDelete.setEnabled(false);
-        btnDelete.setVisibility(View.INVISIBLE);
-        btnSave.setEnabled(false);
-        btnSave.setVisibility(View.INVISIBLE);
 
         /** App exits if  an error occurs **/
         if (!buildRecorder()) {
@@ -445,27 +322,6 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
             recorder.release();
             recorder = null;
         }
-    }
-
-
-    /** Method that enables the user to share to other apps. **/
-    private void shareVideo() {
-
-        String myFileName = fileName;
-        finish();
-        Intent myIntent = new Intent(CamActivity.this, VideoUpload.class);
-        myIntent.putExtra("fileName", myFileName);
-        CamActivity.this.startActivity(myIntent);
-
-//        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-//
-//        Uri video = Uri.fromFile(outFile);
-//
-//        sharingIntent.setType("video/mp4");
-//        sharingIntent.putExtra(Intent.EXTRA_STREAM, video);
-//        sharingIntent.putExtra(Intent.EXTRA_TEXT, "This Video Was Shared by The App QuickVid");
-//        startActivity(Intent.createChooser(sharingIntent, "Share The Video Using..."));
-
     }
 
     public void exitApp()
