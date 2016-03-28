@@ -75,7 +75,8 @@ public class VideoUpload extends AppCompatActivity {
             int bytesRead, bytesAvailable, bufferSize;
             byte[] buffer;
             int maxBufferSize = 1 * 1024 * 1024;
-            String urlString = Config.FILE_UPLOAD_URL;
+            String urlString = "http://leagleeye.azurewebsites.net/api/" + UploadData.getInstance().getApiKey() + "/events/" +
+                    UploadData.getInstance().getSession() + "/attachments";
 
 
             try {
