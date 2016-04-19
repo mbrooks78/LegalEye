@@ -333,4 +333,3 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
 
 
 }
-

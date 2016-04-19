@@ -106,10 +106,9 @@ public class VideoUpload extends AppCompatActivity {
                     bytesRead = fileInputStream.read(buffer, 0, bufferSize);
                 }
 
-                // send multipart form data necesssary after file data...
+
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-                // close streams
                 Log.e("Debug", "File is written");
                 fileInputStream.close();
                 dos.flush();
