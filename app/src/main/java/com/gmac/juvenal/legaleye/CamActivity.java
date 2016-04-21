@@ -51,7 +51,6 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
-        btnFlash = (Button) findViewById(R.id.btnFlash);
         btnStop = (Button) findViewById(R.id.btnSTOP);
         btnPause = (Button) findViewById(R.id.btnPause);
         btnPause.setBackgroundResource(R.drawable.pause_60x60);
@@ -148,12 +147,6 @@ public class CamActivity extends AppCompatActivity implements SurfaceHolder.Call
         }
 
     }
-
-    public void btnFlashClick (View view) {
-        //check if phone has led
-        //if so toggle light on and off-
-    }
-
 
     /**Button that stops the recording then plays it back. **/
     public void btnStopClick(View view) {

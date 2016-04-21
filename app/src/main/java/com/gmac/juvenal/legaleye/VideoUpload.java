@@ -24,6 +24,8 @@ public class VideoUpload extends AppCompatActivity {
 
     private String myFileName;
     private String responseString = "";
+    private String apiKey;
+    private String sessionID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,20 +35,21 @@ public class VideoUpload extends AppCompatActivity {
         if (extras != null) {
             myFileName = extras.getString("fileName");
         }
-
+        apiKey = UploadData.getInstance().getApiKey();
+        sessionID = UploadData.getInstance().getSession();
         new StartVideoUpload().execute();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
     }
 
     public class StartVideoUpload extends AsyncTask<Void, Integer, String> {
@@ -75,8 +78,8 @@ public class VideoUpload extends AppCompatActivity {
             int bytesRead, bytesAvailable, bufferSize;
             byte[] buffer;
             int maxBufferSize = 1 * 1024 * 1024;
-            String urlString = "http://leagleeye.azurewebsites.net/api/" + UploadData.getInstance().getApiKey() + "/events/" +
-                    UploadData.getInstance().getSession() + "/attachments";
+            String urlString = "http://leagleeye.azurewebsites.net/api/" + apiKey + "/events/" +
+                    sessionID + "/attachments";
 
 
             try {

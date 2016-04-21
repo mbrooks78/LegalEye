@@ -6,9 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -23,12 +21,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
-//import com.google.android.gms.location.LocationRequest;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -51,8 +45,6 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity { //implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    //  private GoogleApiClient mGoogleApiClient;
-//  private static final int PERMISSION_ACCESS_COARSE_LOCATION = 1;
     private String fileName = "UserData";
     private String filePath = "/data/data/com.gmac.juvenal.legaleye/files/UserData";
     private String[] states;
@@ -60,32 +52,28 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
     private SharedPreferences preferences;
     private EditText editEmailText;
     private EditText editPhoneText;
-    //generic for testing need to find a way to use location for api <=23
-    private Location mLastLocation;
-    private String stringLatitude = "28.5221690";
-    private String stringLongitude = "-81.4641160";
+
+    // These are variables to hold user data. email, phone and state will be populated from either reading a file or
+    // getting user input depending on whether the user has opened the app previously. stringLattitude and stringLogitude
+
+    private String stringLatitude;
+    private String stringLongitude;
     private String email;
     private String phone;
     private String state;
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
-    //private String[] PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA, Manifest.permission.ACCESS_COARSE_LOCATION};
     private final String SEGMENT = "1";
-    private String id = "";
     private static final String TAG = "MainActivity";
+    private String apiKey;
+    private String id;
+    private String dialNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//   if (mGoogleApiClient == null) {
-//            mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                    .addConnectionCallbacks(this)
-//                    .addOnConnectionFailedListener(this)
-//                    .addApi(LocationServices.API)
-//                    .build();
-//        }
-
         if (checkAndRequestPermissions()) {
+
             continueFlow();
         }
 
@@ -132,10 +120,11 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
         }
 
         initUserVarsFromFile();
+
         new JSONTask().execute(Config.SERVER_URL);
 
-        Intent myIntent = new Intent(MainActivity.this, CamActivity.class);
-        MainActivity.this.startActivity(myIntent);
+//        Intent myIntent = new Intent(MainActivity.this, CamActivity.class);
+//        MainActivity.this.startActivity(myIntent);
     }
 
     // validating email id
@@ -198,16 +187,28 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
     }
 
     public void continueFlow() {
+
+        LocationManager locationManager = new LocationManager(this);
+        locationManager.buildGoogleApiConnection();
         File file = new File(filePath);
+
+        if ((locationManager.getStringLat() != null && !locationManager.getStringLat().equals(""))
+                || (locationManager.getStringLong() != null && locationManager.getStringLong().equals(""))) {
+            stringLatitude = locationManager.getStringLat();
+            stringLongitude = locationManager.getStringLong();
+        } else {
+            stringLatitude = "28.5221690";
+            stringLongitude = "-81.4641160";
+        }
+
         if (file.exists()) {
             initUserVarsFromFile();
+
             new JSONTask().execute(Config.SERVER_URL);
 
-            Intent myIntent = new Intent(MainActivity.this, CamActivity.class);
-            MainActivity.this.startActivity(myIntent);
+
         } else {
             setContentView(R.layout.activity_main);
-
             states = getResources().getStringArray(R.array.states_list);
             spinner = (Spinner) findViewById(R.id.state_spinner);
 
@@ -220,59 +221,13 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
         }
     }
 
-//    @Override
-//    protected void onStart() {
-//        mGoogleApiClient.connect();
-//        super.onStart();
-//    }
-//
-//    @Override
-//    protected void onStop() {
-//        mGoogleApiClient.disconnect();
-//        super.onStop();
-//    }
-
-//    @Override
-//    public void onConnected(Bundle bundle) {
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return;
-//        }
-//        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-//
-//        if (mLastLocation != null) {
-//            stringLatitude = String.valueOf(mLastLocation.getLatitude());
-//            stringLongitude = String.valueOf(mLastLocation.getLongitude());
-//        } else {
-//            stringLatitude = "28.4158";
-//            stringLongitude = "81.2989";
-//        }
-//    }
-
-//    @Override
-//    public void onConnectionSuspended(int i) {
-//
-//    }
-//
-//    @Override
-//    public void onConnectionFailed(ConnectionResult connectionResult) {
-//
-//    }
-
-
     public class JSONTask extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... params) {
+
             HttpURLConnection connection = null;
             BufferedReader reader = null;
-
 
             try {
                 URL url = new URL(params[0]);
@@ -284,9 +239,9 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
                     request.put("segment", SEGMENT);
                     request.put("emailAddress", email);
                     request.put("phoneNumber", phone);
-                    request.put("state", state);
                     request.put("latitude", stringLatitude);
                     request.put("longitude", stringLongitude);
+                    request.put("state", state);
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -298,7 +253,7 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
                 connection.setDoInput(true);
                 connection.setRequestMethod("POST");
                 connection.setFixedLengthStreamingMode(postParam2.getBytes().length);
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                connection.setRequestProperty("Content", "json\\application"); //-Type", "x-www-form-urlencoded");
 
                 PrintWriter out = new PrintWriter(connection.getOutputStream());
                 out.print(postParam2);
@@ -324,12 +279,13 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
                 String finJson = buffer.toString();
 
                 JSONObject responseObject = new JSONObject(finJson);
-                String id = responseObject.getJSONObject("data").getString("session"); //.getString("session");
-                String dialPhoneNum = responseObject.getJSONObject("data").getString("dial");
-                String apiKey = responseObject.getJSONObject("data").getString("apiKey");
+                id = responseObject.getJSONObject("data").getString("session"); //.getString("session");
+                dialNum = responseObject.getJSONObject("data").getString("dial");
+                apiKey = responseObject.getJSONObject("data").getString("apiKey");
                 UploadData.getInstance().setApiKey(apiKey);
                 UploadData.getInstance().setSession(id);
-                UploadData.getInstance().setDialNumber(dialPhoneNum);
+                UploadData.getInstance().setDialNumber(dialNum);
+
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -351,22 +307,13 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
             return null;
         }
 
-//        @Override
-//        public void onConnected(Bundle connectionHint) {
-//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-//                    mGoogleApiClient);
-//            if (mLastLocation != null) {
-//                mLatitudeText.setText(String.valueOf(mLastLocation.getLatitude()));
-//                mLongitudeText.setText(String.valueOf(mLastLocation.getLongitude()));
-//            }
-//        }
-
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            Intent myIntent = new Intent(MainActivity.this, CamActivity.class);
+            MainActivity.this.startActivity(myIntent);
         }
     }
-
 
     private boolean checkAndRequestPermissions() {
         int permissionWriteStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -374,6 +321,7 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
         int microphonePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
         int cameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         List<String> listPermissionsNeeded = new ArrayList<>();
+
         if (locationPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         }
@@ -395,14 +343,13 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         Log.d(TAG, "Permission callback called-------");
         switch (requestCode) {
             case REQUEST_ID_MULTIPLE_PERMISSIONS: {
 
                 Map<String, Integer> perms = new HashMap<>();
-                // Initialize the map with both permissions
+                // Initialize the map with all required permissions
                 perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.ACCESS_COARSE_LOCATION, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.RECORD_AUDIO, PackageManager.PERMISSION_GRANTED);
@@ -411,22 +358,23 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
                 if (grantResults.length > 0) {
                     for (int i = 0; i < permissions.length; i++)
                         perms.put(permissions[i], grantResults[i]);
-                    // Check for both permissions
+                    // Check for all permissions
                     if (perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                             && perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                             && perms.get(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
                             && perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                         Log.d(TAG, "permissions granted");
                         // process the normal flow
+
                         continueFlow();
                         //else any one or both the permissions are not granted
                     } else {
                         Log.d(TAG, "Some permissions are not granted ask again ");
-                        System.exit(1);
                         //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
 //                        // shouldShowRequestPermissionRationale will return true
                         //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                             showDialogOK("Camera, microphone, storage and Location Services Permission required for this app",
                                     new DialogInterface.OnClickListener() {
                                         @Override
@@ -436,6 +384,7 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
                                                     checkAndRequestPermissions();
                                                     break;
                                                 case DialogInterface.BUTTON_NEGATIVE:
+                                                    System.exit(1);
                                                     // proceed with logic by disabling the related features or quit the app.
                                                     break;
                                             }
@@ -448,6 +397,7 @@ public class MainActivity extends AppCompatActivity { //implements GoogleApiClie
                             Toast.makeText(this, "Go to settings and enable permissions", Toast.LENGTH_LONG)
                                     .show();
                             //                            //proceed with logic by disabling the related features or quit the app.
+                            System.exit(1);
                         }
                     }
                 }
